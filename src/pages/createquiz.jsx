@@ -38,9 +38,22 @@ const CreateQuiz = () => {
 
     try {
       // Submit each question to the server individually
-      for (const question of addedQuestions) {
-        await axios.post('http://localhost:4000/api/quizzes', { question });
+      for (const addedQuestion of addedQuestions) {
+        const { question, answers, correctAnswer } = addedQuestion;
+
+        // Construct the request payload according to the backend API format
+        const requestPayload = {
+          question: {
+            question: question,
+            answers: [answers.a, answers.b, answers.c, answers.d],
+            correctAnswer: correctAnswer,
+          },
+        };
+
+        // POST request to the backend
+        await axios.post('https://quiz-backend-k3f1l4mjx-hasan-siddiquis-projects.vercel.app/', requestPayload);
       }
+
       alert('Quiz questions created successfully!');
     } catch (error) {
       alert('Error creating quiz:', error.message);
