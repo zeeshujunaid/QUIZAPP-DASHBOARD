@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
 
 const CreateQuiz = () => {
-  const [question, setQuestion] = useState('');
-  const [answers, setAnswers] = useState({ a: '', b: '', c: '', d: '' });
-  const [correctAnswer, setCorrectAnswer] = useState('');
+  const [question, setQuestion] = useState("");
+  const [answers, setAnswers] = useState({ a: "", b: "", c: "", d: "" });
+  const [correctAnswer, setCorrectAnswer] = useState("");
   const [addedQuestions, setAddedQuestions] = useState([]);
 
-  // Add a new question to the current quiz
   const handleAddQuestion = () => {
+    // Log current inputs for debugging
+    console.log("Adding question:", { question, answers, correctAnswer });
+
     if (!question || !answers.a || !answers.b || !answers.c || !answers.d || !correctAnswer) {
-      alert('Please fill all fields and select a correct answer.');
+      alert("Please fill all fields and select a correct answer.");
       return;
     }
 
@@ -20,52 +22,47 @@ const CreateQuiz = () => {
       correctAnswer,
     };
 
-    // Add the new question to the list of added questions
     setAddedQuestions([...addedQuestions, newQuestion]);
-
-    // Clear input fields for the next question
-    setQuestion('');
-    setAnswers({ a: '', b: '', c: '', d: '' });
-    setCorrectAnswer('');
+    setQuestion("");
+    setAnswers({ a: "", b: "", c: "", d: "" });
+    setCorrectAnswer("");
   };
 
-  // Handle quiz question submission to the server
   const handleSubmit = async () => {
+    // Log addedQuestions to ensure there are questions before submission
+    console.log("Submitting quiz with questions:", addedQuestions);
+
     if (addedQuestions.length === 0) {
-      alert('Please add at least one question before submitting.');
+      alert("Please add at least one question before submitting.");
       return;
     }
 
     try {
-      // Submit each question to the server individually
       for (const addedQuestion of addedQuestions) {
         const { question, answers, correctAnswer } = addedQuestion;
 
-        // Construct the request payload according to the backend API format
         const requestPayload = {
-          question: {
-            question: question,
-            answers: [answers.a, answers.b, answers.c, answers.d],
-            correctAnswer: correctAnswer,
-          },
+          question,
+          answers: [answers.a, answers.b, answers.c, answers.d],
+          correctAnswer: ["a", "b", "c", "d"].indexOf(correctAnswer), // Convert to index
         };
 
-        // POST request to the backend
-        await axios.post('https://quiz-backend-k3f1l4mjx-hasan-siddiquis-projects.vercel.app/', requestPayload);
+        console.log("Sending payload to backend:", requestPayload); // Log payload for debugging
+
+        await axios.post("http://localhost:5000/api/quizzes", requestPayload);
       }
 
-      alert('Quiz questions created successfully!');
+      alert("Quiz questions created successfully!");
     } catch (error) {
-      alert('Error creating quiz:', error.message);
+      console.error("Error creating quiz:", error); // Log error details
+      alert(`Error creating quiz: ${error.response?.data?.message || error.message}`);
     }
   };
 
   return (
     <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">Create a Quiz</h1>
-
       <div className="space-y-4">
-        {/* Question Input */}
         <div>
           <label className="block text-lg font-medium text-gray-700">Question:</label>
           <input
@@ -77,18 +74,15 @@ const CreateQuiz = () => {
           />
         </div>
 
-        {/* Answer Inputs */}
         <div className="grid grid-cols-2 gap-4">
-          {['a', 'b', 'c', 'd'].map((letter) => (
+          {["a", "b", "c", "d"].map((letter) => (
             <div key={letter}>
               <label className="block text-lg font-medium text-gray-700">Answer {letter.toUpperCase()}:</label>
               <input
                 type="text"
                 name={letter}
                 value={answers[letter]}
-                onChange={(e) =>
-                  setAnswers({ ...answers, [e.target.name]: e.target.value })
-                }
+                onChange={(e) => setAnswers({ ...answers, [e.target.name]: e.target.value })}
                 placeholder={`Answer ${letter.toUpperCase()}`}
                 className="w-full p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -96,7 +90,6 @@ const CreateQuiz = () => {
           ))}
         </div>
 
-        {/* Correct Answer Selection */}
         <div>
           <label className="block text-lg font-medium text-gray-700">Correct Answer:</label>
           <select
@@ -104,7 +97,7 @@ const CreateQuiz = () => {
             onChange={(e) => setCorrectAnswer(e.target.value)}
             className="w-full p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Select Correct Answer</option> {/* Ensure default option */}
+            <option value="">Select Correct Answer</option>
             <option value="a">Answer A</option>
             <option value="b">Answer B</option>
             <option value="c">Answer C</option>
@@ -112,7 +105,6 @@ const CreateQuiz = () => {
           </select>
         </div>
 
-        {/* Add Question Button */}
         <div className="text-center">
           <button
             onClick={handleAddQuestion}
@@ -122,7 +114,6 @@ const CreateQuiz = () => {
           </button>
         </div>
 
-        {/* Display Added Questions */}
         {addedQuestions.length > 0 && (
           <div>
             <h3 className="text-2xl font-semibold text-gray-800">Added Questions:</h3>
@@ -143,7 +134,6 @@ const CreateQuiz = () => {
           </div>
         )}
 
-        {/* Submit Quiz Button */}
         <div className="text-center mt-6">
           <button
             onClick={handleSubmit}
