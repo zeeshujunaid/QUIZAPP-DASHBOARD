@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "../../firebase/firebaseconfig"; // Firebase configuration import karo
+import { db } from "../../firebase/firebaseconfig";
 
 const CreateQuiz = () => {
   const [question, setQuestion] = useState("");
@@ -10,7 +10,14 @@ const CreateQuiz = () => {
   const [isLoading, setIsLoading] = useState(false); // Loader state
 
   const handleAddQuestion = () => {
-    if (!question || !answers.a || !answers.b || !answers.c || !answers.d || !correctAnswer) {
+    if (
+      !question ||
+      !answers.a ||
+      !answers.b ||
+      !answers.c ||
+      !answers.d ||
+      !correctAnswer
+    ) {
       alert("Please fill all fields and select a correct answer.");
       return;
     }
@@ -55,10 +62,14 @@ const CreateQuiz = () => {
 
   return (
     <div className="container p-6 mx-auto bg-gray-100 rounded-lg shadow-lg">
-      <h1 className="mb-6 text-3xl font-bold text-center text-blue-600">Create a Quiz</h1>
+      <h1 className="mb-6 text-3xl font-bold text-center text-blue-600">
+        Create a Quiz
+      </h1>
       <div className="space-y-4">
         <div>
-          <label className="block text-lg font-medium text-gray-700">Question:</label>
+          <label className="block text-lg font-medium text-gray-700">
+            Question:
+          </label>
           <input
             type="text"
             value={question}
@@ -71,12 +82,16 @@ const CreateQuiz = () => {
         <div className="grid grid-cols-2 gap-4">
           {["a", "b", "c", "d"].map((letter) => (
             <div key={letter}>
-              <label className="block text-lg font-medium text-gray-700">Answer {letter.toUpperCase()}:</label>
+              <label className="block text-lg font-medium text-gray-700">
+                Answer {letter.toUpperCase()}:
+              </label>
               <input
                 type="text"
                 name={letter}
                 value={answers[letter]}
-                onChange={(e) => setAnswers({ ...answers, [e.target.name]: e.target.value })}
+                onChange={(e) =>
+                  setAnswers({ ...answers, [e.target.name]: e.target.value })
+                }
                 placeholder={`Answer ${letter.toUpperCase()}`}
                 className="w-full p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -85,7 +100,9 @@ const CreateQuiz = () => {
         </div>
 
         <div>
-          <label className="block text-lg font-medium text-gray-700">Correct Answer:</label>
+          <label className="block text-lg font-medium text-gray-700">
+            Correct Answer:
+          </label>
           <select
             value={correctAnswer}
             onChange={(e) => setCorrectAnswer(e.target.value)}
@@ -110,10 +127,15 @@ const CreateQuiz = () => {
 
         {addedQuestions.length > 0 && (
           <div>
-            <h3 className="text-2xl font-semibold text-gray-800">Added Questions:</h3>
+            <h3 className="text-2xl font-semibold text-gray-800">
+              Added Questions:
+            </h3>
             <ul className="mt-4 space-y-4">
               {addedQuestions.map((q, index) => (
-                <li key={index} className="p-4 bg-white border rounded-lg shadow-md">
+                <li
+                  key={index}
+                  className="p-4 bg-white border rounded-lg shadow-md"
+                >
                   <p className="text-lg font-semibold text-gray-700">
                     <strong>Q{index + 1}:</strong> {q.question}
                   </p>
@@ -121,7 +143,9 @@ const CreateQuiz = () => {
                   <p className="text-gray-600">B: {q.answers.b}</p>
                   <p className="text-gray-600">C: {q.answers.c}</p>
                   <p className="text-gray-600">D: {q.answers.d}</p>
-                  <p className="text-gray-600">Correct Answer: {q.correctAnswer}</p>
+                  <p className="text-gray-600">
+                    Correct Answer: {q.correctAnswer}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -133,11 +157,7 @@ const CreateQuiz = () => {
             onClick={handleSubmit}
             className="px-6 py-3 text-white transition duration-300 bg-green-600 rounded-lg shadow-md hover:bg-green-700"
           >
-            {isLoading ? (
-              <span className="loader"></span> // Replace this with an actual loader component
-            ) : (
-              "Submit Quiz"
-            )}
+            {isLoading ? <span className="loader"></span> : "Submit Quiz"}
           </button>
         </div>
       </div>
