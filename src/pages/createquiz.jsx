@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "../../firebase/firebaseconfig";
 
 const CreateQuiz = () => {
@@ -7,18 +7,47 @@ const CreateQuiz = () => {
   const [answers, setAnswers] = useState({ a: "", b: "", c: "", d: "" });
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [addedQuestions, setAddedQuestions] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); // Loader state
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
+  const [liveQuizCode, setLiveQuizCode] = useState(null);
+  const [inputCode, setInputCode] = useState("");
+  const [isCodeVerified, setIsCodeVerified] = useState(false);
+
+  const categories = [
+    "Web Development",
+    "App Development",
+    "UI/UX Design",
+    "Flutter Development",
+    "Digital Marketing",
+  ];
+
+  // Generate a unique live quiz code
+  const handleGenerateCode = () => {
+    const code = Math.round(Math.random() * 8999 + 1000); // 4-digit random code
+    setLiveQuizCode(code);
+    setIsCodeVerified(false);
+    alert(`Live quiz code generated: ${code}`);
+  };
+
+  // Verify the entered live quiz code
+  const handleVerifyCode = () => {
+    if (inputCode === String(liveQuizCode)) {
+      alert("Code verified successfully!");
+      setIsCodeVerified(true);
+    } else {
+      alert("Invalid code. Please try again.");
+    }
+  };
+
+  // Add a question to the list
   const handleAddQuestion = () => {
-    if (
-      !question ||
-      !answers.a ||
-      !answers.b ||
-      !answers.c ||
-      !answers.d ||
-      !correctAnswer
-    ) {
-      alert("Please fill all fields and select a correct answer.");
+    if (!isCodeVerified) {
+      alert("Please verify the quiz code before adding questions.");
+      return;
+    }
+    if (!question || !answers.a || !answers.b || !answers.c || !answers.d || !correctAnswer) {
+      alert("Please fill in all fields and select the correct answer.");
       return;
     }
 
@@ -28,35 +57,59 @@ const CreateQuiz = () => {
       correctAnswer,
     };
 
-    setAddedQuestions([...addedQuestions, newQuestion]);
+    setAddedQuestions((prev) => [...prev, newQuestion]);
     setQuestion("");
     setAnswers({ a: "", b: "", c: "", d: "" });
     setCorrectAnswer("");
   };
 
+  // Submit the quiz to Firebase
   const handleSubmit = async () => {
+    if (!selectedCategory) {
+      alert("Please select a category.");
+      return;
+    }
     if (addedQuestions.length === 0) {
-      alert("Please add at least one question before submitting.");
+      alert("Please add at least one question.");
+      return;
+    }
+    if (!liveQuizCode) {
+      alert("Live quiz code is required.");
       return;
     }
 
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
 
     try {
-      const quizCollectionRef = collection(db, "quizzes"); // Firestore 'quizzes' collection reference
+      const collectionName = selectedCategory.replace(/\s+/g, "").toLowerCase() + "Quizzes";
+      const quizDocRef = doc(db, collectionName, String(liveQuizCode));
 
-      for (const addedQuestion of addedQuestions) {
-        await addDoc(quizCollectionRef, addedQuestion); // Har question Firestore mein add karega
+      const existingQuiz = await getDoc(quizDocRef);
+
+      if (existingQuiz.exists()) {
+        await updateDoc(quizDocRef, {
+          questions: arrayUnion(...addedQuestions),
+        });
+        alert("Questions added to the existing quiz successfully!");
+      } else {
+        await setDoc(quizDocRef, {
+          liveQuizCode,
+          category: selectedCategory,
+          questions: addedQuestions,
+        });
+        alert("Quiz created successfully!");
       }
 
-      setTimeout(() => {
-        alert("Quiz questions saved to Firestore!"); // Delay alert after submission
-      }, 1000); // 1 second delay
+      // Reset fields
+      setAddedQuestions([]);
+      setSelectedCategory("");
+      setLiveQuizCode(null);
+      setIsCodeVerified(false);
     } catch (error) {
       console.error("Error saving quiz:", error);
-      alert("Error saving quiz to Firestore. Please try again.");
+      alert("An error occurred while saving the quiz. Please try again.");
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
 
@@ -65,101 +118,168 @@ const CreateQuiz = () => {
       <h1 className="mb-6 text-3xl font-bold text-center text-blue-600">
         Create a Quiz
       </h1>
+
       <div className="space-y-4">
+        {/* Category Selector */}
         <div>
           <label className="block text-lg font-medium text-gray-700">
-            Question:
-          </label>
-          <input
-            type="text"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Enter your question"
-            className="w-full p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          {["a", "b", "c", "d"].map((letter) => (
-            <div key={letter}>
-              <label className="block text-lg font-medium text-gray-700">
-                Answer {letter.toUpperCase()}:
-              </label>
-              <input
-                type="text"
-                name={letter}
-                value={answers[letter]}
-                onChange={(e) =>
-                  setAnswers({ ...answers, [e.target.name]: e.target.value })
-                }
-                placeholder={`Answer ${letter.toUpperCase()}`}
-                className="w-full p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          ))}
-        </div>
-
-        <div>
-          <label className="block text-lg font-medium text-gray-700">
-            Correct Answer:
+            Select Category:
           </label>
           <select
-            value={correctAnswer}
-            onChange={(e) => setCorrectAnswer(e.target.value)}
-            className="w-full p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Select Correct Answer</option>
-            <option value="a">Answer A</option>
-            <option value="b">Answer B</option>
-            <option value="c">Answer C</option>
-            <option value="d">Answer D</option>
+            <option value="">Select a Category</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
           </select>
         </div>
 
+        {/* Generate Quiz Code */}
         <div className="text-center">
           <button
-            onClick={handleAddQuestion}
-            className="px-6 py-3 text-white transition duration-300 bg-blue-600 rounded-lg shadow-md hover:bg-blue-700"
+            onClick={handleGenerateCode}
+            className="px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700"
           >
-            Add Question
+            Generate Live Quiz Code
           </button>
+          {liveQuizCode && (
+            <p className="mt-4 text-lg font-semibold text-purple-600">
+              Generated Code: {liveQuizCode}
+            </p>
+          )}
         </div>
 
-        {addedQuestions.length > 0 && (
-          <div>
-            <h3 className="text-2xl font-semibold text-gray-800">
-              Added Questions:
-            </h3>
-            <ul className="mt-4 space-y-4">
-              {addedQuestions.map((q, index) => (
-                <li
-                  key={index}
-                  className="p-4 bg-white border rounded-lg shadow-md"
-                >
-                  <p className="text-lg font-semibold text-gray-700">
-                    <strong>Q{index + 1}:</strong> {q.question}
-                  </p>
-                  <p className="text-gray-600">A: {q.answers.a}</p>
-                  <p className="text-gray-600">B: {q.answers.b}</p>
-                  <p className="text-gray-600">C: {q.answers.c}</p>
-                  <p className="text-gray-600">D: {q.answers.d}</p>
-                  <p className="text-gray-600">
-                    Correct Answer: {q.correctAnswer}
-                  </p>
-                </li>
-              ))}
-            </ul>
+        {/* Verify Code Section */}
+        {liveQuizCode && (
+          <div className="mt-4">
+            <label className="block text-lg font-medium text-gray-700">
+              Enter Generated Code to Verify:
+            </label>
+            <input
+              type="text"
+              value={inputCode}
+              onChange={(e) => setInputCode(e.target.value)}
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter generated code"
+            />
+            <button
+              onClick={handleVerifyCode}
+              className="px-6 py-3 mt-4 text-white bg-green-600 rounded-lg hover:bg-green-700"
+            >
+              Verify Code
+            </button>
           </div>
         )}
 
-        <div className="mt-6 text-center">
-          <button
-            onClick={handleSubmit}
-            className="px-6 py-3 text-white transition duration-300 bg-green-600 rounded-lg shadow-md hover:bg-green-700"
-          >
-            {isLoading ? <span className="loader"></span> : "Submit Quiz"}
-          </button>
-        </div>
+        {/* Question Inputs */}
+        {isCodeVerified && (
+          <>
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Question:
+              </label>
+              <input
+                type="text"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your question"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {["a", "b", "c", "d"].map((letter) => (
+                <div key={letter}>
+                  <label className="block text-lg font-medium text-gray-700">
+                    Answer {letter.toUpperCase()}:
+                  </label>
+                  <input
+                    type="text"
+                    name={letter}
+                    value={answers[letter]}
+                    onChange={(e) =>
+                      setAnswers({ ...answers, [e.target.name]: e.target.value })
+                    }
+                    className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+                    placeholder={`Answer ${letter.toUpperCase()}`}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <label className="block text-lg font-medium text-gray-700">
+                Correct Answer:
+              </label>
+              <select
+                value={correctAnswer}
+                onChange={(e) => setCorrectAnswer(e.target.value)}
+                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Correct Answer</option>
+                {["a", "b", "c", "d"].map((letter) => (
+                  <option key={letter} value={letter}>
+                    Answer {letter.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="text-center">
+              <button
+                onClick={handleAddQuestion}
+                className="px-6 py-3 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+              >
+                Add Question
+              </button>
+            </div>
+
+            {/* Display Added Questions */}
+            <div className="mt-6">
+              <h2 className="text-xl font-bold text-gray-800">
+                Added Questions:
+              </h2>
+              <ul className="mt-4 space-y-2">
+                {addedQuestions.map((q, index) => (
+                  <li
+                    key={index}
+                    className="p-4 bg-white border rounded-md shadow-sm"
+                  >
+                    <p>
+                      <strong>Q{index + 1}:</strong> {q.question}
+                    </p>
+                    <ul className="ml-4 list-disc">
+                      {Object.entries(q.answers).map(([key, value]) => (
+                        <li key={key}>
+                          <strong>{key.toUpperCase()}:</strong> {value}
+                        </li>
+                      ))}
+                    </ul>
+                    <p>
+                      <strong>Correct Answer:</strong>{" "}
+                      {q.correctAnswer.toUpperCase()}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Submit Button */}
+            <div className="mt-6 text-center">
+              <button
+                onClick={handleSubmit}
+                className="px-6 py-3 text-white bg-green-600 rounded-lg hover:bg-green-700"
+              >
+                {isLoading ? "Submitting..." : "Submit Quiz"}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
