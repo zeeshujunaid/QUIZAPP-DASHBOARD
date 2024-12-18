@@ -9,8 +9,8 @@ const Home = () => {
   const navigate = useNavigate(); // Hook for navigation
 
   // Predefined email and password
-  const correctEmail = 'saylani12@gmai.com'; // Replace with your actual email
-  const correctPassword = 'saylanidashboard123'; // Replace with your actual password
+  const correctEmail = 'expo@gmai.com'; // Replace with your actual email
+  const correctPassword = '123456'; // Replace with your actual password
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -28,7 +28,7 @@ const Home = () => {
   return (
     <div className="flex items-center justify-center h-screen bg-green-100">
       <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-center text-green-600 mb-6">Saylani Quiz App Dashboard</h1>
+        <h1 className="mb-6 text-3xl font-bold text-center text-green-600">Saylani Quiz App Dashboard</h1>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
@@ -42,7 +42,7 @@ const Home = () => {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border rounded-md text-gray-900"
+              className="w-full px-4 py-2 text-gray-900 border rounded-md"
               required
             />
           </div>
@@ -58,14 +58,14 @@ const Home = () => {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-md text-gray-900"
+              className="w-full px-4 py-2 text-gray-900 border rounded-md"
               required
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-2 mt-4 bg-green-500 text-white rounded-md hover:bg-green-600"
+            className="w-full py-2 mt-4 text-white bg-green-500 rounded-md hover:bg-green-600"
           >
             Login
           </button>
