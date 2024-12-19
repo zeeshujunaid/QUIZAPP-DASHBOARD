@@ -9,7 +9,7 @@ const Home = () => {
   const navigate = useNavigate(); // Hook for navigation
 
   // Predefined email and password
-  const correctEmail = 'expo@gmai.com'; // Replace with your actual email
+  const correctEmail = 'expo@gmail.com'; // Replace with your actual email
   const correctPassword = '123456'; // Replace with your actual password
 
   const handleLogin = (e) => {

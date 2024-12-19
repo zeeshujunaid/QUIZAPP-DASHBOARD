@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "../../firebase/firebaseconfig";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CreateQuiz = () => {
   const [question, setQuestion] = useState("");
@@ -23,95 +25,95 @@ const CreateQuiz = () => {
   ];
 
   // Generate a unique live quiz code
-  const handleGenerateCode = () => {
-    const code = Math.round(Math.random() * 8999 + 1000); // 4-digit random code
-    setLiveQuizCode(code);
-    setIsCodeVerified(false);
-    alert(`Live quiz code generated: ${code}`);
+const handleGenerateCode = () => {
+  const code = Math.round(Math.random() * 8999 + 1000); // 4-digit random code
+  setLiveQuizCode(code);
+  setIsCodeVerified(false);
+  toast.info(`Live quiz code generated: ${code}`);
+};
+
+// Verify the entered live quiz code
+const handleVerifyCode = () => {
+  if (inputCode === String(liveQuizCode)) {
+    toast.success("Code verified successfully!");
+    setIsCodeVerified(true);
+  } else {
+    toast.error("Invalid code. Please try again.");
+  }
+};
+
+// Add a question to the list
+const handleAddQuestion = () => {
+  if (!isCodeVerified) {
+    toast.error("Please verify the quiz code before adding questions.");
+    return;
+  }
+  if (!question || !answers.a || !answers.b || !answers.c || !answers.d || !correctAnswer) {
+    toast.error("Please fill in all fields and select the correct answer.");
+    return;
+  }
+
+  const newQuestion = {
+    question,
+    answers,
+    correctAnswer,
   };
 
-  // Verify the entered live quiz code
-  const handleVerifyCode = () => {
-    if (inputCode === String(liveQuizCode)) {
-      alert("Code verified successfully!");
-      setIsCodeVerified(true);
+  setAddedQuestions((prev) => [...prev, newQuestion]);
+  setQuestion("");
+  setAnswers({ a: "", b: "", c: "", d: "" });
+  setCorrectAnswer("");
+};
+
+// Submit the quiz to Firebase
+const handleSubmit = async () => {
+  if (!selectedCategory) {
+    toast.error("Please select a category.");
+    return;
+  }
+  if (addedQuestions.length === 0) {
+    toast.error("Please add at least one question.");
+    return;
+  }
+  if (!liveQuizCode) {
+    toast.error("Live quiz code is required.");
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const collectionName = selectedCategory.replace(/\s+/g, "").toLowerCase() + "Quizzes";
+    const quizDocRef = doc(db, collectionName, String(liveQuizCode));
+
+    const existingQuiz = await getDoc(quizDocRef);
+
+    if (existingQuiz.exists()) {
+      await updateDoc(quizDocRef, {
+        questions: arrayUnion(...addedQuestions),
+      });
+      toast.success("Questions added to the existing quiz successfully!");
     } else {
-      alert("Invalid code. Please try again.");
-    }
-  };
-
-  // Add a question to the list
-  const handleAddQuestion = () => {
-    if (!isCodeVerified) {
-      alert("Please verify the quiz code before adding questions.");
-      return;
-    }
-    if (!question || !answers.a || !answers.b || !answers.c || !answers.d || !correctAnswer) {
-      alert("Please fill in all fields and select the correct answer.");
-      return;
+      await setDoc(quizDocRef, {
+        liveQuizCode,
+        category: selectedCategory,
+        questions: addedQuestions,
+      });
+      toast.success("Quiz created successfully!");
     }
 
-    const newQuestion = {
-      question,
-      answers,
-      correctAnswer,
-    };
-
-    setAddedQuestions((prev) => [...prev, newQuestion]);
-    setQuestion("");
-    setAnswers({ a: "", b: "", c: "", d: "" });
-    setCorrectAnswer("");
-  };
-
-  // Submit the quiz to Firebase
-  const handleSubmit = async () => {
-    if (!selectedCategory) {
-      alert("Please select a category.");
-      return;
-    }
-    if (addedQuestions.length === 0) {
-      alert("Please add at least one question.");
-      return;
-    }
-    if (!liveQuizCode) {
-      alert("Live quiz code is required.");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const collectionName = selectedCategory.replace(/\s+/g, "").toLowerCase() + "Quizzes";
-      const quizDocRef = doc(db, collectionName, String(liveQuizCode));
-
-      const existingQuiz = await getDoc(quizDocRef);
-
-      if (existingQuiz.exists()) {
-        await updateDoc(quizDocRef, {
-          questions: arrayUnion(...addedQuestions),
-        });
-        alert("Questions added to the existing quiz successfully!");
-      } else {
-        await setDoc(quizDocRef, {
-          liveQuizCode,
-          category: selectedCategory,
-          questions: addedQuestions,
-        });
-        alert("Quiz created successfully!");
-      }
-
-      // Reset fields
-      setAddedQuestions([]);
-      setSelectedCategory("");
-      setLiveQuizCode(null);
-      setIsCodeVerified(false);
-    } catch (error) {
-      console.error("Error saving quiz:", error);
-      alert("An error occurred while saving the quiz. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // Reset fields
+    setAddedQuestions([]);
+    setSelectedCategory("");
+    setLiveQuizCode(null);
+    setIsCodeVerified(false);
+  } catch (error) {
+    console.error("Error saving quiz:", error);
+    toast.error("An error occurred while saving the quiz. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="container p-6 mx-auto bg-gray-100 rounded-lg shadow-lg">
@@ -281,6 +283,7 @@ const CreateQuiz = () => {
           </>
         )}
       </div>
+      <ToastContainer />
     </div>
   );
 };

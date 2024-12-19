@@ -8,6 +8,7 @@ const Sidebar = () => {
       <ul className="space-y-4">
         {/* <li><Link to="/" className="text-gray-700 hover:text-blue-500">Home</Link></li> */}
         <li><Link to="/create-quiz" className="text-gray-700 hover:text-blue-500">Create Quiz</Link></li>
+        <li><Link to="/exsitingquiz" className="text-gray-700 hover:text-blue-500">Edit Exsiting Quiz</Link></li>
         <li><Link to="/city/islamabad" className="text-gray-700 hover:text-blue-500">Islamabad</Link></li>
         <li><Link to="/city/lahore" className="text-gray-700 hover:text-blue-500">Lahore</Link></li>
         <li><Link to="/city/quetta" className="text-gray-700 hover:text-blue-500">Quetta</Link></li>
