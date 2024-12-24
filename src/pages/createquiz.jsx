@@ -19,7 +19,7 @@ const CreateQuiz = () => {
   const categories = [
     "Web Development",
     "App Development",
-    "UI/UX Design",
+    "UIUX Design",
     "Flutter Development",
     "Digital Marketing",
   ];
@@ -84,6 +84,7 @@ const handleSubmit = async () => {
 
   try {
     const collectionName = selectedCategory.replace(/\s+/g, "").toLowerCase() + "Quizzes";
+    // Fix: Use the correct Firestore document reference format
     const quizDocRef = doc(db, collectionName, String(liveQuizCode));
 
     const existingQuiz = await getDoc(quizDocRef);
