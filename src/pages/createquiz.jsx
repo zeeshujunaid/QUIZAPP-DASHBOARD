@@ -21,7 +21,7 @@ const CreateQuiz = () => {
     "App Development",
     "UIUX Development",
     "Flutter Development",
-    "Digital Marketing",
+    "Digital development",
   ];
 
   // Generate a unique live quiz code
