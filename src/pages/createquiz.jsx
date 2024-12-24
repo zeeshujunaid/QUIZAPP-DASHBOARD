@@ -19,7 +19,7 @@ const CreateQuiz = () => {
   const categories = [
     "Web Development",
     "App Development",
-    "UIUX Design",
+    "UIUX Development",
     "Flutter Development",
     "Digital Marketing",
   ];
