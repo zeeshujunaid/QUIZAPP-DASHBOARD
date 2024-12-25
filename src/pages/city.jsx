@@ -37,7 +37,7 @@ const City = () => {
         <h2 className="text-xl font-semibold text-gray-600">Loading data...</h2> // Loading state
       ) : (
         <>
-          <h1 className="text-4xl font-bold text-blue-700 mb-5">Welcome to {cityName}</h1>
+          <h1 className="text-4xl font-bold text-blue-700 mb-5">Welcome to {cityName} Quiz Result</h1>
 
           {/* If data is available, render it */}
           {cityData.length > 0 ? (
@@ -51,7 +51,7 @@ const City = () => {
                   </div>
                   <div className="mb-2">
                     <strong className="text-gray-700">City:</strong>
-                    <span>{item.city || 'Not Available'}</span> {/* Show 'Not Available' if the field is empty */}
+                    <span>{item.cityName || 'Not Available'}</span> {/* Show 'Not Available' if the field is empty */}
                   </div>
                   <div className="mb-2">
                     <strong className="text-gray-700">Sirname:</strong>
@@ -60,6 +60,10 @@ const City = () => {
                   <div className="mb-2">
                     <strong className="text-gray-700">Score:</strong>
                     <span>{item.score !== undefined ? item.score : 'Not Available'}</span> {/* Show 'Not Available' if score is missing */}
+                  </div>
+                  <div className="mb-2">
+                    <strong className="text-gray-700">Course:</strong>
+                    <span>{item.course !== undefined ? item.course : 'Not Available'}</span> {/* Show 'Not Available' if score is missing */}
                   </div>
                 </div>
               ))}
