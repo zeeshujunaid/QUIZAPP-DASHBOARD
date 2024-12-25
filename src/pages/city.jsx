@@ -50,12 +50,8 @@ const City = () => {
                     <span>{item.name || 'Not Available'}</span> {/* Show 'Not Available' if the field is empty */}
                   </div>
                   <div className="mb-2">
-                    <strong className="text-gray-700">City:</strong>
-                    <span>{item.cityName || 'Not Available'}</span> {/* Show 'Not Available' if the field is empty */}
-                  </div>
-                  <div className="mb-2">
-                    <strong className="text-gray-700">Sirname:</strong>
-                    <span>{item.sirname || 'Not Available'}</span> {/* Show 'Not Available' if the field is empty */}
+                    <strong className="text-gray-700">ID:</strong>
+                    <span>{item.cardnum !== undefined ? item.cardnum : 'Not Available'}</span> {/* Show 'Not Available' if score is missing */}
                   </div>
                   <div className="mb-2">
                     <strong className="text-gray-700">Score:</strong>
@@ -64,6 +60,18 @@ const City = () => {
                   <div className="mb-2">
                     <strong className="text-gray-700">Course:</strong>
                     <span>{item.course !== undefined ? item.course : 'Not Available'}</span> {/* Show 'Not Available' if score is missing */}
+                  </div>
+                  <div className="mb-2">
+                    <strong className="text-gray-700">Sirname:</strong>
+                    <span>{item.sirname || 'Not Available'}</span> {/* Show 'Not Available' if the field is empty */}
+                  </div>
+                  <div className="mb-2">
+                    <strong className="text-gray-700">Date:</strong>
+                    <span>{item.date !== undefined ? item.date : 'Not Available'}</span> {/* Show 'Not Available' if score is missing */}
+                  </div>
+                  <div className="mb-2">
+                    <strong className="text-gray-700">City:</strong>
+                    <span>{item.cityName || 'Not Available'}</span> {/* Show 'Not Available' if the field is empty */}
                   </div>
                 </div>
               ))}
