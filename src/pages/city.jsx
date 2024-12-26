@@ -32,12 +32,12 @@ const City = () => {
   }, [cityName]); // Effect runs when cityName changes
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100 pt-10">
       {loading ? (
         <h2 className="text-xl font-semibold text-gray-600">Loading data...</h2> // Loading state
       ) : (
         <>
-          <h1 className="text-4xl font-bold text-blue-700 mb-5">Welcome to {cityName} Quiz Result</h1>
+          <h1 className="text-4xl font-bold text-blue-700 mb-5 pt-20">Welcome to {cityName} Quiz Result</h1>
 
           {/* If data is available, render it */}
           {cityData.length > 0 ? (

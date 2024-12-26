@@ -16,9 +16,9 @@ export default function ExistingQuiz() {
   const categories = [
     "Web Development",
     "App Development",
-    "UI/UX Design",
+    "uiux Development",
     "Flutter Development",
-    "Digital Marketing",
+    "Digital Development ",
   ];
 
   const notify = (message, type = "info") => {
