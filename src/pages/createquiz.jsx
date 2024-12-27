@@ -175,7 +175,7 @@ const handleSubmit = async () => {
               onClick={handleVerifyCode}
               className="px-6 py-3 mt-4 text-white bg-green-600 rounded-lg hover:bg-green-700"
             >
-              Verify Codej
+              Verify Code
             </button>
           </div>
         )}
