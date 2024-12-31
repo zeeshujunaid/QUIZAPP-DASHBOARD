@@ -4,7 +4,6 @@ import Sidebar from './components/sidebar';
 import Home from './pages/home';
 import Exsitingquiz from './pages/exsitingquiz';
 import CreateQuiz from './pages/createquiz';
-
 import City from './pages/City';
 
 const App = () => {
